@@ -1,35 +1,40 @@
-import { useState, useCallback } from 'react';
-import { format } from 'date-fns';
-import { ShoppingCart } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listCarts, getCartById, syncCarts } from '@/api/carts';
-import { Filters } from '@/components/Filters';
-import { CartsTable } from '@/components/CartsTable';
-import { CartDetailsModal } from '@/components/CartDetailsModal';
-import { LoadingSkeleton } from '@/components/LoadingSkeleton';
-import { EmptyState } from '@/components/EmptyState';
-import { ErrorState } from '@/components/ErrorState';
-import type { CartFilters } from '@/types/filters';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useCallback } from "react";
+import { format } from "date-fns";
+import { ShoppingCart } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { listCarts, getCartById, syncCarts } from "@/api/carts";
+import { Filters } from "@/components/Filters";
+import { CartsTable } from "@/components/CartsTable";
+import { CartDetailsModal } from "@/components/CartDetailsModal";
+import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+import { EmptyState } from "@/components/EmptyState";
+import { ErrorState } from "@/components/ErrorState";
+import type { CartFilters } from "@/types/filters";
+import { useToast } from "@/hooks/use-toast";
 
 export function CartsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   const [filters, setFilters] = useState<CartFilters>({
-    userId: '',
+    userId: "",
     dateFrom: undefined,
     dateTo: undefined,
   });
-  
+
   const [selectedCartId, setSelectedCartId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const buildQueryParams = useCallback(() => ({
-    userId: filters.userId ? Number(filters.userId) : undefined,
-    dateFrom: filters.dateFrom ? format(filters.dateFrom, 'yyyy-MM-dd') : undefined,
-    dateTo: filters.dateTo ? format(filters.dateTo, 'yyyy-MM-dd') : undefined,
-  }), [filters]);
+  const buildQueryParams = useCallback(
+    () => ({
+      userId: filters.userId ? Number(filters.userId) : undefined,
+      dateFrom: filters.dateFrom
+        ? format(filters.dateFrom, "yyyy-MM-dd")
+        : undefined,
+      dateTo: filters.dateTo ? format(filters.dateTo, "yyyy-MM-dd") : undefined,
+    }),
+    [filters],
+  );
 
   const {
     data: carts = [],
@@ -38,15 +43,12 @@ export function CartsPage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['carts', buildQueryParams()],
+    queryKey: ["carts", buildQueryParams()],
     queryFn: () => listCarts(buildQueryParams()),
   });
 
-  const {
-    data: selectedCart,
-    isLoading: isLoadingDetails,
-  } = useQuery({
-    queryKey: ['cart', selectedCartId],
+  const { data: selectedCart, isLoading: isLoadingDetails } = useQuery({
+    queryKey: ["cart", selectedCartId],
     queryFn: () => getCartById(selectedCartId!),
     enabled: selectedCartId !== null,
   });
@@ -54,17 +56,17 @@ export function CartsPage() {
   const syncMutation = useMutation({
     mutationFn: syncCarts,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['carts'] });
+      queryClient.invalidateQueries({ queryKey: ["carts"] });
       toast({
-        title: 'Sincronização concluída',
-        description: 'Os carrinhos foram sincronizados com sucesso.',
+        title: "Sincronização concluída",
+        description: "Os carrinhos foram sincronizados com sucesso.",
       });
     },
     onError: () => {
       toast({
-        title: 'Erro na sincronização',
-        description: 'Não foi possível sincronizar os carrinhos.',
-        variant: 'destructive',
+        title: "Erro na sincronização",
+        description: "Não foi possível sincronizar os carrinhos.",
+        variant: "destructive",
       });
     },
   });
@@ -75,7 +77,7 @@ export function CartsPage() {
 
   const handleClearFilters = () => {
     setFilters({
-      userId: '',
+      userId: "",
       dateFrom: undefined,
       dateTo: undefined,
     });
@@ -115,7 +117,7 @@ export function CartsPage() {
         />
 
         {isLoading && <LoadingSkeleton />}
-        
+
         {isError && (
           <ErrorState
             message={error instanceof Error ? error.message : undefined}
