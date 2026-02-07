@@ -1,4 +1,16 @@
 import { useState, useCallback } from 'react';
+import { format } from 'date-fns';
+import { ShoppingCart } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { listCarts, getCartById, syncCarts } from '@/api/carts';
+import { Filters } from '@/components/Filters';
+import { CartsTable } from '@/components/CartsTable';
+import { CartDetailsModal } from '@/components/CartDetailsModal';
+import { LoadingSkeleton } from '@/components/LoadingSkeleton';
+import { EmptyState } from '@/components/EmptyState';
+import { ErrorState } from '@/components/ErrorState';
+import type { CartFilters } from '@/types/filters';
+import { useToast } from '@/hooks/use-toast';
 
 export function CartsPage() {
   const { toast } = useToast();
