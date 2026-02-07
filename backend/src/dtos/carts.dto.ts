@@ -26,3 +26,23 @@ export const GetCartByIdParamsDTO = z.object({
 });
 
 export type GetCartByIdParams = z.infer<typeof GetCartByIdParamsDTO>;
+
+const isoDateTime = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de data inválido. Use YYYY-MM-DD.");
+
+export const UpdateCartBodyDTO = z.object({
+  userId: z.number().int().positive().optional(),
+  date: isoDateTime.optional(),
+  items: z
+    .array(
+      z.object({
+        productId: z.number().int().positive(),
+        quantity: z.number().int().positive()
+      })
+    )
+    .min(1, "items não pode ser vazio")
+    .optional()
+});
+
+export type UpdateCartBody = z.infer<typeof UpdateCartBodyDTO>;

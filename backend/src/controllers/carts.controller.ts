@@ -19,6 +19,21 @@ export class CartsController {
     const cart = await this.cartsService.getById(params.id);
     res.json(cart);
   };
+  
+  update = async (req: Request, res: Response) => {
+    const params = req.validated?.params as any;
+    const body = req.validated?.body as any;
+
+    const updated = await this.cartsService.update(params.id, body);
+    return res.json(updated);
+  };
+
+  remove = async (req: Request, res: Response) => {
+    const params = req.validated?.params as any;
+
+    await this.cartsService.remove(params.id);
+    return res.json({ message: `Carrinho ${params.id} removido com sucesso` });
+  };
 
   sync = async (_req: Request, res: Response) => {
     const result = await this.syncService.syncCarts();

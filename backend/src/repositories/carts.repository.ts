@@ -1,6 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import { FakeCart } from "../clients/fakestore.types";
 
+type UpdateCartInput = {
+  userId?: number;
+  date?: Date;
+  items?: Array<{ productId: number; quantity: number }>;
+};
+
 export class CartsRepository {
   constructor(private prisma: PrismaClient) {}
 
@@ -86,5 +92,58 @@ export class CartsRepository {
         include: { items: { select: { productId: true, quantity: true } } }
       });
     });
+  }
+
+  async updateCart(id: number, data: UpdateCartInput) {
+    return this.prisma.$transaction(async (tx) => {
+      const existing = await tx.cart.findUnique({
+        where: { id },
+        include: { items: true }
+      });
+
+      if (!existing) return null;
+
+      const shouldUpdateItems = Array.isArray(data.items);
+
+      const totalQuantity = shouldUpdateItems
+        ? data.items!.reduce((acc, i) => acc + i.quantity, 0)
+        : existing.totalQuantity;
+
+      await tx.cart.update({
+        where: { id },
+        data: {
+          userId: data.userId ?? existing.userId,
+          date: data.date ?? existing.date,
+          totalQuantity
+        }
+      });
+
+      if (shouldUpdateItems) {
+        await tx.cartItem.deleteMany({ where: { cartId: id } });
+
+        await tx.cartItem.createMany({
+          data: data.items!.map((i) => ({
+            cartId: id,
+            productId: i.productId,
+            quantity: i.quantity
+          }))
+        });
+      }
+
+      return tx.cart.findUnique({
+        where: { id },
+        include: {
+          items: { select: { productId: true, quantity: true }, orderBy: { productId: "asc" } }
+        }
+      });
+    });
+  }
+
+  async deleteCart(id: number) {
+    const existing = await this.prisma.cart.findUnique({ where: { id } });
+    if (!existing) return null;
+
+    await this.prisma.cart.delete({ where: { id } });
+    return true;
   }
 }
