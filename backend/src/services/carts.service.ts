@@ -2,17 +2,25 @@ import { CartsRepository } from "../repositories/carts.repository";
 import { NotFoundError } from "../middlewares/error.middleware";
 import { parseDateOnlyToEnd, parseDateOnlyToStart } from "../utils/date";
 
+type ListInput = {
+  userId?: number;
+  dateFrom?: string; 
+  dateTo?: string;
+  cursor?: number;
+};
+
 export class CartsService {
   constructor(private cartsRepo: CartsRepository) {}
 
-  async list(filters: { userId?: number; dateFrom?: string; dateTo?: string }) {
-    const dateFrom = filters.dateFrom ? parseDateOnlyToStart(filters.dateFrom) : undefined;
-    const dateTo = filters.dateTo ? parseDateOnlyToEnd(filters.dateTo) : undefined;
+  async list(input: ListInput) {
+    const dateFrom = input.dateFrom ? parseDateOnlyToStart(input.dateFrom) : undefined;
+    const dateTo = input.dateTo ? parseDateOnlyToEnd(input.dateTo) : undefined;
 
     return this.cartsRepo.findMany({
-      userId: filters.userId,
+      userId: input.userId,
       dateFrom,
-      dateTo
+      dateTo,
+      cursor: input.cursor
     });
   }
 

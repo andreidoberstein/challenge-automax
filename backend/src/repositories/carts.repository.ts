@@ -7,10 +7,19 @@ type UpdateCartInput = {
   items?: Array<{ productId: number; quantity: number }>;
 };
 
+type ListFilters = {
+  userId?: number;
+  dateFrom?: Date;
+  dateTo?: Date;
+  cursor?: number;
+};
+
+const PAGE_SIZE = 5;
+
 export class CartsRepository {
   constructor(private prisma: PrismaClient) {}
 
-  async findMany(filters: { userId?: number; dateFrom?: Date; dateTo?: Date }) {
+  async findMany(filters: ListFilters) {
     const where: any = {};
 
     if (filters.userId) where.userId = filters.userId;
@@ -21,11 +30,21 @@ export class CartsRepository {
       if (filters.dateTo) where.date.lte = filters.dateTo;
     }
 
-    return this.prisma.cart.findMany({
+    const rows = await this.prisma.cart.findMany({
       where,
+      take: PAGE_SIZE,
+      ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
       orderBy: { id: "asc" },
       select: { id: true, userId: true, date: true, totalQuantity: true }
     });
+
+    const nextCursor = rows.length === PAGE_SIZE ? rows[rows.length - 1].id : null;
+
+    return {
+      rows,
+      nextCursor,
+      pageSize: PAGE_SIZE
+    };
   }
 
   async findById(id: number) {
