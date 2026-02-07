@@ -25,3 +25,6 @@
 */*.njsproj
 */*.sln
 */*.sw?
+
+*/prisma/sqlite/*.db
+*/prisma/sqlite/*.db-journal
