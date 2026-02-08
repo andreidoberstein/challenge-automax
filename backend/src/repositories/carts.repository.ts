@@ -39,7 +39,7 @@ export class CartsRepository {
     });
 
     const nextCursor = rows.length === PAGE_SIZE ? rows[rows.length - 1].id : null;
-
+    
     return {
       rows,
       nextCursor,

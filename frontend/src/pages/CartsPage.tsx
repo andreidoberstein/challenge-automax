@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { format } from "date-fns";
 import { ShoppingCart } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery  } from "@tanstack/react-query";
 import { listCarts, getCartById, syncCarts } from "@/api/carts";
 import { Filters } from "@/components/Filters";
 import { CartsTable } from "@/components/CartsTable";
@@ -36,16 +36,29 @@ export function CartsPage() {
     [filters],
   );
 
+  const queryParams = useMemo(() => buildQueryParams(), [buildQueryParams]);
+
   const {
-    data: carts = [],
+    data,
     isLoading,
     isError,
     error,
     refetch,
-  } = useQuery({
-    queryKey: ["carts", buildQueryParams()],
-    queryFn: () => listCarts(buildQueryParams()),
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["carts", queryParams],
+    queryFn: ({ pageParam }) =>
+      listCarts({
+        ...queryParams,
+        cursor: pageParam ?? undefined,
+      }),
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
+
+  const carts = data?.pages.flatMap((p) => p.rows) ?? [];
 
   const { data: selectedCart, isLoading: isLoadingDetails } = useQuery({
     queryKey: ["cart", selectedCartId],
@@ -125,10 +138,26 @@ export function CartsPage() {
           />
         )}
 
-        {!isLoading && !isError && carts.length === 0 && <EmptyState />}
+        {!isLoading && !isError && carts?.length === 0 && <EmptyState />}
 
-        {!isLoading && !isError && carts.length > 0 && (
-          <CartsTable carts={carts} onViewDetails={handleViewDetails} />
+        {!isLoading && !isError && carts?.length > 0 && (
+          <>
+            <CartsTable carts={carts} onViewDetails={handleViewDetails} />
+
+            <div className="flex justify-center pt-2">
+              <button
+                className="inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm"
+                onClick={() => fetchNextPage()}
+                disabled={!hasNextPage || isFetchingNextPage}
+              >
+                {isFetchingNextPage
+                  ? "Carregando..."
+                  : hasNextPage
+                  ? "Carregar mais (5)"
+                  : "Sem mais resultados"}
+              </button>
+            </div>
+          </>
         )}
       </main>
 

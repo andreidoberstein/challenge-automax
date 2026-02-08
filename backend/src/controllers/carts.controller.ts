@@ -9,9 +9,23 @@ export class CartsController {
   ) {}
 
   list = async (req: Request, res: Response) => {
-    const query = req.validated?.query as any; // tipado via DTO no route
-    const carts = await this.cartsService.list(query);
-    res.json(carts);
+    const query = (req.validated?.query ?? {}) as any;
+
+    const { rows, nextCursor, pageSize } = await this.cartsService.list({
+      userId: query.userId,
+      dateFrom: query.dateFrom,
+      dateTo: query.dateTo,
+      cursor: query.cursor,
+    });
+
+    return res.json({
+      rows,
+      nextCursor,
+      pageSize,
+      cursor: query.cursor ?? null,
+      hasNextPage: nextCursor !== null,
+      count: rows.length,
+    });
   };
 
   getById = async (req: Request, res: Response) => {

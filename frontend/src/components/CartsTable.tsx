@@ -13,7 +13,7 @@ import {
 import type { Cart } from '@/api/carts';
 
 interface CartsTableProps {
-  carts: Cart[];
+  carts?: Cart[];
   onViewDetails: (id: number) => void;
 }
 
@@ -40,7 +40,7 @@ export function CartsTable({ carts, onViewDetails }: CartsTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {carts.map((cart) => (
+            {carts?.map((cart) => (
               <TableRow key={cart.id} className="hover:bg-muted/30 transition-colors">
                 <TableCell className="font-medium">#{cart.id}</TableCell>
                 <TableCell>{formatDate(cart.date)}</TableCell>
@@ -69,7 +69,7 @@ export function CartsTable({ carts, onViewDetails }: CartsTableProps) {
       </div>
 
       <div className="md:hidden space-y-3">
-        {carts.map((cart) => (
+        {carts?.map((cart) => (
           <div
             key={cart.id}
             className="bg-card rounded-lg border p-4 space-y-3"
