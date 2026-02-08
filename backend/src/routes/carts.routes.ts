@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { validate } from "../middlewares/validate.middleware";
-import { GetCartByIdParamsDTO, GetCartsQueryDTO, UpdateCartBodyDTO } from "../dtos/carts.dto";
+import {
+  GetCartByIdParamsDTO,
+  GetCartsQueryDTO,
+  UpdateCartBodyDTO,
+} from "../dtos/carts.dto";
 import { CartsController } from "../controllers/carts.controller";
 
 export function cartsRoutes(controller: CartsController) {
@@ -42,8 +46,12 @@ export function cartsRoutes(controller: CartsController) {
    *       200: { description: OK }
    *       404: { description: Not Found }
    */
-  router.get("/:id", validate(GetCartByIdParamsDTO, "params"), controller.getById);
-  
+  router.get(
+    "/:id",
+    validate(GetCartByIdParamsDTO, "params"),
+    controller.getById,
+  );
+
   /**
    * @openapi
    * /carts/{id}:
@@ -63,14 +71,7 @@ export function cartsRoutes(controller: CartsController) {
    *             type: object
    *             properties:
    *               userId: { type: integer }
-   *               date: { type: string, example: "2020-03-02" }
-   *               items:
-   *                 type: array
-   *                 items:
-   *                   type: object
-   *                   properties:
-   *                     productId: { type: integer }
-   *                     quantity: { type: integer }
+   *               date: { type: string, example: "2020-03-12T00:00:00.000Z" }
    *     responses:
    *       200: { description: OK }
    *       400: { description: Validation Error }
@@ -80,7 +81,7 @@ export function cartsRoutes(controller: CartsController) {
     "/:id",
     validate(GetCartByIdParamsDTO, "params"),
     validate(UpdateCartBodyDTO, "body"),
-    controller.update
+    controller.update,
   );
 
   /**
@@ -101,7 +102,7 @@ export function cartsRoutes(controller: CartsController) {
   router.delete(
     "/:id",
     validate(GetCartByIdParamsDTO, "params"),
-    controller.remove
+    controller.remove,
   );
 
   return router;
