@@ -114,3 +114,36 @@ Rodar o comando:
 npm run dev
 ```
 > Acessar a aplicação na URL indicada (http:localhost:8080)
+
+---
+
+# Lógica de importação dos produtos nos carrinhos
+
+Para cada produto dentro de **fakeCart.products**, ele garante que exista um registro em cartItem para o par (cartId, productId):
+
+- Se já existir → ele atualiza a quantity
+
+- Se não existir → ele cria o item com cartId, productId e quantity
+
+> Assim garantimos que exista no máximo um registro por produto no carrinho.
+
+```bash
+for (const p of fakeCart.products) {
+  await tx.cartItem.upsert({
+    where: {
+      cartId_productId: {
+        cartId: fakeCart.id,
+        productId: p.productId
+      }
+    },
+    create: {
+      cartId: fakeCart.id,
+      productId: p.productId,
+      quantity: p.quantity
+    },
+    update: {
+      quantity: p.quantity
+    }
+  });
+}
+```

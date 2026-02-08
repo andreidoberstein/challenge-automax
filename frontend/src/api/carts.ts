@@ -59,6 +59,26 @@ export async function getCartById(id: number): Promise<CartWithTotal> {
   };
 }
 
+export type UpdateCartBody = {
+  userId?: number;
+  date?: string;
+  items?: Array<{ productId: number; quantity: number }>;
+};
+
+export async function updateCart(id: number, body: UpdateCartBody): Promise<Cart> {  
+  return apiClient<Cart>(`/carts/${id}`, {
+    method: "PATCH",
+    body,
+  });
+}
+
+export async function deleteCart(id: number): Promise<{ message: string }> {
+  return apiClient<{ message: string }>(`/carts/${id}`, {
+    method: "DELETE",
+  });
+}
+
+
 export async function syncCarts(): Promise<{ message: string }> {
   return apiClient<{ message: string }>("/sync", { method: "POST" });
 }

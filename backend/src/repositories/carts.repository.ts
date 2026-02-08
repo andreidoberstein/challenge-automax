@@ -39,7 +39,7 @@ export class CartsRepository {
     });
 
     const nextCursor = rows.length === PAGE_SIZE ? rows[rows.length - 1].id : null;
-    
+
     return {
       rows,
       nextCursor,
@@ -86,7 +86,7 @@ export class CartsRepository {
         }
       });
 
-      // Upsert dos itens (cartId + productId é unique)
+      // Upsert dos itens 
       for (const p of fakeCart.products) {
         await tx.cartItem.upsert({
           where: {
@@ -114,6 +114,7 @@ export class CartsRepository {
   }
 
   async updateCart(id: number, data: UpdateCartInput) {
+    console.log(id, data)
     return this.prisma.$transaction(async (tx) => {
       const existing = await tx.cart.findUnique({
         where: { id },

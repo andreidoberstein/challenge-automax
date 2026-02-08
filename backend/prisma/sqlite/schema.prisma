@@ -26,8 +26,4 @@ model CartItem {
 
   @@unique([cartId, productId])
   @@index([cartId])
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 761104770e57969a5d8f6debb22f105458e7d01c

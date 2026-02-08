@@ -36,9 +36,13 @@ export const GetCartByIdParamsDTO = z.object({
 
 export type GetCartByIdParams = z.infer<typeof GetCartByIdParamsDTO>;
 
+const isoDateTime = z
+  .string()
+  .datetime({ message: "date deve ser ISO datetime (ex: 2020-03-02T00:00:00.000Z)" });
+
 export const UpdateCartBodyDTO = z.object({
   userId: z.number().int().positive().optional(),
-  date: dateOnly.optional(),
+  date: isoDateTime.optional(),
   items: z
     .array(
       z.object({

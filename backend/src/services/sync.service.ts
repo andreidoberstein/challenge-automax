@@ -8,8 +8,8 @@ export class SyncService {
     const carts = await fetchFakeStoreCarts();
 
     let upserted = 0;
-    for (const c of carts) {
-      await this.cartsRepo.upsertCartWithItems(c);
+    for (const cart of carts) {
+      await this.cartsRepo.upsertCartWithItems(cart);
       upserted++;
     }
 
