@@ -175,3 +175,91 @@ for (const p of fakeCart.products) {
   });
 }
 ```
+
+<br>
+
+# 📊 Observabilidade
+
+Este projeto implementa práticas de observabilidade utilizando **Prometheus** para coleta de métricas e **Grafana** para visualização.
+
+A aplicação expõe métricas HTTP no endpoint:
+
+```bash
+GET /metrics
+```
+
+Essas métricas incluem:
+
+* 📈 Total de requisições por rota
+* ⏱️ Tempo de resposta da API (histograma)
+* ❌ Taxa de erros HTTP
+* 🧠 Uso de memória do Node.js
+
+---
+
+### 🚀 Como subir o ambiente de observabilidade
+
+Execute:
+
+```bash
+docker compose up -d
+```
+
+Isso iniciará:
+
+* API Node.js
+* Prometheus (porta 9090)
+* Grafana (porta 3001)
+
+---
+
+### 🔎 Acessos
+
+| Serviço    | URL                           |
+| ---------- | ----------------------------- |
+| API        | http://localhost:3000         |
+| Métricas   | http://localhost:3000/metrics |
+| Prometheus | http://localhost:9090         |
+| Grafana    | http://localhost:3001         |
+
+Login padrão do Grafana:
+
+```
+user: admin
+password: admin
+```
+
+---
+
+### 📊 Dashboard
+
+![Grafana Observability Dashboard](frontend/src/assets/observability.png)
+
+O dashboard principal exibe:
+
+* Requests por segundo (RPS)
+* Latência p95 das requisições
+* Taxa de erro da API
+* Uso de memória do processo Node
+
+Esses dados permitem identificar:
+
+* Gargalos de performance
+* Rotas com maior carga
+* Problemas de estabilidade
+* Consumo de recursos da aplicação
+
+
+
+---
+
+### 📁 Estrutura
+
+```
+observability/
+ ├── prometheus.yml
+ └── dashboard-automax.json
+```
+
+---
+
