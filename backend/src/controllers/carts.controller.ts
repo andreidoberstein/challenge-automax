@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { CartsService } from "../services/carts.service";
 import { SyncService } from "../services/sync.service";
+import { logger } from "../observability/logger";
 
 export class CartsController {
   constructor(
     private cartsService: CartsService,
-    private syncService: SyncService
+    private syncService: SyncService,
   ) {}
 
   list = async (req: Request, res: Response) => {
@@ -17,6 +18,14 @@ export class CartsController {
       dateTo: query.dateTo,
       cursor: query.cursor,
     });
+
+    logger.info(
+      {
+        route: "GET /carts",
+        query,
+      },
+      "Listing carts",
+    );
 
     return res.json({
       rows,
@@ -33,12 +42,21 @@ export class CartsController {
     const cart = await this.cartsService.getById(params.id);
     res.json(cart);
   };
-  
+
   update = async (req: Request, res: Response) => {
     const params = req.validated?.params as any;
     const body = req.validated?.body as any;
 
     const updated = await this.cartsService.update(params.id, body);
+
+    logger.info(
+      {
+        cartId: params.id,
+        body,
+      },
+      "Updating cart",
+    );
+
     return res.json(updated);
   };
 
@@ -51,6 +69,14 @@ export class CartsController {
 
   sync = async (_req: Request, res: Response) => {
     const result = await this.syncService.syncCarts();
+
+    logger.info(
+      {
+        cartsUpserted: result,
+      },
+      "Sync carts",
+    );
+
     res.json({ message: "Sync realizado com sucesso", ...result });
   };
 }
